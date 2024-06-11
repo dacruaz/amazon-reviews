@@ -1,7 +1,7 @@
 import streamlit as st
 import requests
-
 from bs4 import BeautifulSoup
+import pandas as pd
 
 def scrape_amazon_reviews(url):
     headers = {
@@ -26,9 +26,8 @@ def main():
         if product_url:
             try:
                 reviews = scrape_amazon_reviews(product_url)
-                st.header("Reviews:")
-                for review in reviews:
-                    st.write(review)
+                df = pd.DataFrame({"Reviews": reviews})
+                st.write(df)
             except:
                 st.error("Failed to extract reviews. Please check the URL and try again.")
 
