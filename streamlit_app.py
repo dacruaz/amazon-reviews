@@ -19,17 +19,18 @@ def scrape_amazon_reviews(url):
     return reviews
 
 def main():
-    st.title("Amazon Product Review Extractor")
+    st.title("Amazon Product Review Scraper")
     
     product_url = st.text_input("Enter Amazon Product URL:")
-    if st.button("Extract Reviews"):
+    if st.button("Scrape Reviews"):
         if product_url:
             try:
                 reviews = scrape_amazon_reviews(product_url)
                 df = pd.DataFrame({"Reviews": reviews})
+                st.header("Extracted Reviews:")
                 st.write(df)
             except:
-                st.error("Failed to extract reviews. Please check the URL and try again.")
+                st.error("Failed to scrape reviews. Please check the URL and try again.")
 
 if __name__ == "__main__":
     main()
