@@ -1,40 +1,35 @@
-import altair as alt
-import numpy as np
-import pandas as pd
 import streamlit as st
+import requests
+from bs4 import BeautifulSoup
 
-"""
-# Welcome to Streamlit!
+def scrape_amazon_reviews(url):
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3'}
+    response = requests.get(url, headers=headers)
+    soup = BeautifulSoup(response.text, 'html.parser')
+    
+    reviews = []
+    review_elements = soup.find_all('div', {'data-hook': 'review'})
+    
+    for review in review_elements:
+        review_text = review.find('span', {'data-hook': 'review-body'}).text.strip()
+        reviews.append(review_text)
+    
+    return reviews
 
-Edit `/streamlit_app.py` to customize this app to your heart's desire :heart:.
-If you have any questions, checkout our [documentation](https://docs.streamlit.io) and [community
-forums](https://discuss.streamlit.io).
+def main():
+    st.title("Amazon Product Review Extractor")
+    
+    product_url = st.text_input("Enter Amazon Product URL:")
+    if st.button("Extract Reviews"):
+        if product_url:
+            try:
+                reviews = scrape_amazon_reviews(product_url)
+                st.header("Reviews:")
+                for review in reviews:
+                    st.write(review)
+            except:
+                st.error("Failed to extract reviews. Please check the URL and try again.")
 
-In the meantime, below is an example of what you can do with just a few lines of code:
-"""
-
-num_points = st.slider("Number of points in spiral", 1, 10000, 1100)
-num_turns = st.slider("Number of turns in spiral", 1, 300, 31)
-
-indices = np.linspace(0, 1, num_points)
-theta = 2 * np.pi * num_turns * indices
-radius = indices
-
-x = radius * np.cos(theta)
-y = radius * np.sin(theta)
-
-df = pd.DataFrame({
-    "x": x,
-    "y": y,
-    "idx": indices,
-    "rand": np.random.randn(num_points),
-})
-
-st.altair_chart(alt.Chart(df, height=700, width=700)
-    .mark_point(filled=True)
-    .encode(
-        x=alt.X("x", axis=None),
-        y=alt.Y("y", axis=None),
-        color=alt.Color("idx", legend=None, scale=alt.Scale()),
-        size=alt.Size("rand", legend=None, scale=alt.Scale(range=[1, 150])),
-    ))
+if __name__ == "__main__":
+    main()
